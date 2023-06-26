@@ -1,0 +1,37 @@
+<!-- Reference:
+https://github.com/ros/urdf_sim_tutorial -->
+
+<launch>
+
+  <!-- Control option -->
+  <arg name="joystick_amount" default="1"/>
+  <arg name="joystick_model" default="XboxOne"/>
+  <arg name="joystick_topic" default="/joy"/>
+  <arg name="joystick_mode" default="diff"/>
+  <arg name="joystick_r" default="0.025"/>
+  <arg name="joystick_b" default="0.5"/>
+
+  <node name="joystick" pkg="simulation_vsss" type="joystick.py" output="screen">
+      <param name="model" value="$(arg joystick_model)"/>
+      <param name="topic" value="$(arg joystick_topic)"/>
+      <param name="mode" value="$(arg joystick_mode)"/>
+      <param name="r" value="$(arg joystick_r)"/>
+      <param name="b" value="$(arg joystick_b)"/>
+  </node>
+  <node name="joy_node" pkg="joy" type="joy_node" output="screen"/>
+
+   <group if="$(eval joystick_amount == 2)">
+      <node name="joystick2" pkg="simulation_vsss" type="joystick_controller.py" output="screen">
+        <param name="model" value="USB"/>
+        <param name="topic" value="/joy2"/>
+        <param name="mode" value="$(arg joystick_mode)"/>
+        <param name="r" value="$(arg joystick_r)"/>
+        <param name="b" value="$(arg joystick_b)"/>
+      </node>
+      <node name="joy_node2" pkg="joy" type="joy_node" output="screen">
+        <remap from="/joy" to="/joy2"/>
+        <param name="dev" value="/dev/input/js1"/>
+      </node>
+    </group>
+
+</launch>

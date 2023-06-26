@@ -1,0 +1,10 @@
+# Ref:
+# https://answers.ros.org/question/326628/how-to-control-velocity-of-joints-in-gazebo-using-ros_controllers/
+
+left_controller:
+  type: velocity_controllers/JointVelocityController
+  joint: wheel_left_joint
+
+right_controller:
+  type: velocity_controllers/JointVelocityController
+  joint: wheel_right_joint

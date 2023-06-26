@@ -1,0 +1,32 @@
+<launch>
+  <arg name="robot_number" default="0"/>
+  <arg name="is_yellow" default="true"/>
+  <arg name="robot_name" default="yelow/0"/>
+  <arg name="x" default="0"/>
+  <arg name="y" default="0"/>
+  <arg name="z" default="0.03"/>
+  <arg name="roll" default="0"/>
+  <arg name="pitch" default="0"/>
+  <arg name="yaw" default="0"/>
+  <arg name="model" default="$(find simulation_vsss)/urdf/robot.xacro"/>
+  <arg name="controller_config_file" default="$(find simulation_vsss)/config/motor_direct_drive.yaml"/>
+  <arg name="ros_control_config_file" default="$(find simulation_vsss)/config/ros_control_config.yaml"/>
+  <arg name="namespace" default="yellow/0"/>
+
+  <group ns="$(arg namespace)">
+    <param name="tf_prefix" value="$(arg namespace)_tf" />
+    <param name="robot_description" command="$(find xacro)/xacro $(arg model) robot_number:=$(arg robot_number) is_yellow:=$(arg is_yellow)" />
+
+    <!-- push robot_description to factory and spawn robot in gazebo -->
+    <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" args="-x $(arg x) -y $(arg y) -z $(arg z)
+                -R $(arg roll) -P $(arg pitch) -Y $(arg yaw)
+                -urdf -model $(arg robot_name) -param robot_description" respawn="false" output="screen" />
+
+    <!-- Load ros control config file -->
+    <rosparam command="load" file="$(arg ros_control_config_file)" />
+    <rosparam command="load" file="$(find simulation_vsss)/config/motor_direct_drive.yaml" />
+    <node name="controller_manager" pkg="controller_manager" type="spawner" args="left_controller right_controller"/>
+    
+  </group>
+
+</launch>

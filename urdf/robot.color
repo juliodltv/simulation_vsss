@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Set team configuration -->
+  <xacro:if value="${is_yellow}">
+
+    <gazebo reference="base_link">
+      <material>Gazebo/Gray</material>
+    </gazebo>
+
+    <gazebo reference="wheel_right_link">
+      <material>Gazebo/White</material>
+    </gazebo>
+
+    <gazebo reference="wheel_left_link">
+      <material>Gazebo/White</material>
+    </gazebo>
+
+    <!-- Set robots colors -->
+    <gazebo reference="top_link">
+      <!-- /Set robots colors -->
+      <material>TeamYellow/Robot${robot_number}/Hat</material>
+    </gazebo>
+  </xacro:if>  <!-- /Set team configuration -->
+
+  <!-- Set team configuration -->
+  <xacro:unless value="${is_yellow}">
+
+    <gazebo reference="base_link">
+      <material>Gazebo/Gray</material>
+    </gazebo>
+
+    <gazebo reference="wheel_right_link">
+      <material>Gazebo/White</material>
+    </gazebo>
+
+    <gazebo reference="wheel_left_link">
+      <material>Gazebo/White</material>
+    </gazebo>
+
+    <!-- Set robots colors -->
+    <gazebo reference="top_link">
+      <!-- /Set robots colors -->
+      <material>TeamBlue/Robot${robot_number}/Hat</material>
+    </gazebo>
+
+  </xacro:unless>  <!-- /Set team configuration -->
+
+</robot>

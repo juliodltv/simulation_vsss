@@ -1,0 +1,24 @@
+<launch>
+
+  <!-- Load robot model -->
+  <arg name="x" default="-0.25" />
+  <arg name="y" default="0" />
+  <arg name="yaw" default="0" />
+
+  <!-- Control option -->
+  <arg name="joystick_enabled" default="true"/>
+
+  <!-- Load gazebo simulation -->
+  <include file="$(find simulation_vsss)/launch/gazebo.launch"/>
+
+  <include file="$(find simulation_vsss)/launch/spawn_robot.launch">
+    <arg name="x" value="$(arg x)" />
+    <arg name="y" value="$(arg y)" />
+    <arg name="yaw" value="$(arg yaw)" />
+  </include>
+
+  <group if="$(arg joystick_enabled)">
+    <include file="$(find simulation_vsss)/launch/joystick.launch"/>
+  </group>
+  
+</launch>

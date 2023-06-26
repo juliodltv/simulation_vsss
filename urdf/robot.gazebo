@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+
+<!-- Ref: http://gazebosim.org/tutorials/?tut=ros_urdf
+    http://answers.gazebosim.org/question/13506/preventing-bouncing-of-object/
+    -->
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Body -->
+  <gazebo reference="base_link">
+    <mu1 value="0.1"/>  <!-- friction coefficient -->
+    <mu2 value="0.1"/>
+    <kp value="1000.0" />  <!-- force control params -->
+    <kd value="10.0" />
+  </gazebo>
+
+  <!-- Top -->
+  <gazebo reference="top_link">
+    <mu1 value="0.01"/>
+    <mu2 value="0.01"/>
+    <kp value="1000.0" />
+    <kd value="10.0" />
+  </gazebo>
+
+  <!-- Wheels -->
+  <xacro:macro name="wheel" params="side">
+    <gazebo reference="wheel_${side}_link">
+      <mu1 value="2.0"/>
+      <mu2 value="2.0"/>
+      <kp value="1e12" />
+      <kd value="1.0" />
+    </gazebo>
+  </xacro:macro>
+
+  <xacro:wheel side="left"/>
+  <xacro:wheel side="right"/>
+
+  <!-- Load gazebo plugin to control the robot -->
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so"/>
+  </gazebo>
+  
+</robot>

@@ -1,0 +1,36 @@
+<launch>
+
+  <!-- Load robot model -->
+  <arg name="model" default="$(find simulation_vsss)/urdf/robot.xacro"/>
+  <arg name="controller_config_file" default="$(find simulation_vsss)/config/motor_direct_drive.yaml"/>
+  <arg name="ros_control_config_file" default="$(find simulation_vsss)/config/ros_control_config.yaml"/>
+
+  <!-- Control option -->
+  <arg name="joystick_enabled" default="true"/>
+
+  <!-- Load gazebo simulation -->
+  <include file="$(find simulation_vsss)/launch/gazebo.launch"/>
+
+  <!-- Spawn yellow team -->
+  <node name="yellow_team_spawner" pkg="simulation_vsss" type="spawn_robots.py" output="screen">
+    <param name="robots_per_team" value="3"/>
+    <param name="team_color" value="yellow" />
+    <param name="model" value="$(arg model)" />
+    <param name="controller_config_file" value="$(arg controller_config_file)"/>
+    <param name="ros_control_config_file" value="$(arg ros_control_config_file)"/>
+  </node>
+
+  <!-- Spawn blue team -->
+  <node name="blue_team_spawner" pkg="simulation_vsss" type="spawn_robots.py" output="screen">
+    <param name="robots_per_team" value="3"/>
+    <param name="team_color" value="blue" />
+    <param name="model" value="$(arg model)" />
+    <param name="controller_config_file" value="$(arg controller_config_file)"/>
+    <param name="ros_control_config_file" value="$(arg ros_control_config_file)"/>
+  </node>
+
+  <group if="$(arg joystick_enabled)">
+    <include file="$(find simulation_vsss)/launch/joystick.launch"/>
+  </group>
+
+</launch>
