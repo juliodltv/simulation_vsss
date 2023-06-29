@@ -27,7 +27,7 @@ https://github.com/ros/urdf_sim_tutorial -->
   <group ns="camera/image_raw">
     <rosparam param="disable_pub_plugins">
       - 'image_transport/compressedDepth'
-      - 'image_transport/compressed'
+      <!-- - 'image_transport/compressed' -->
       - 'image_transport/theora'
     </rosparam>
   </group>
