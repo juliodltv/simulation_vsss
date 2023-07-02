@@ -6,7 +6,7 @@
   <arg name="ros_control_config_file" default="$(find simulation_vsss)/config/ros_control_config.yaml"/>
 
   <!-- Control option -->
-  <arg name="joystick_enabled" default="true"/>
+  <arg name="joystick_enabled" default="false"/>
 
   <!-- Load gazebo simulation -->
   <include file="$(find simulation_vsss)/launch/gazebo.launch"/>
