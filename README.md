@@ -50,7 +50,7 @@ You should see a "Fake" camera in the list. If you get an error, it's so likely 
     sudo apt install mokutil
     sudo mokutil --disable-validation
 
-When you run the command above, you will be asked to create a password. After that you need to reboot the computer, when the computer is booting, you will see a blue screen asking you to disable the secure boot, sometimes only an specific character of your password is required, not the whole password.
+When you run the command above, you will be asked to create a temporaly password. After that you need to reboot the computer, when the computer is booting, you will see a blue screen asking you to disable the secure boot, sometimes only an specific character of your password is required, not the whole password.
 
 ***READ THE INSTRUCTIONS ABOVE BEFORE REBOOTING THE COMPUTER***
 
