@@ -6,6 +6,10 @@ from std_msgs.msg import Float64
 from sensor_msgs.msg import Joy
 
 from std_srvs.srv import Empty as EmptySrv
+from gazebo_msgs.msg import ModelState
+from gazebo_msgs.srv import SetModelState
+from geometry_msgs.msg import Pose
+from gazebo_msgs.msg import ModelStates
 
 class Joystick:
     def __init__(self, model, topic):
@@ -56,12 +60,22 @@ class JoystickVSSS:
             blue.append([[rospy.Publisher(f'/blue/{i}/left_controller/command', Float64, queue_size=1)], 
                               [rospy.Publisher(f'/blue/{i}/right_controller/command', Float64, queue_size=1)]])
         
+        rospy.Subscriber('/gazebo/model_states', ModelStates, self.model_states_callback, queue_size=1)
+        
         self.robots = {'yellow': yellow, 'blue': blue}
         self.current_team = 'yellow'
         self.current_id = 0
+        self.move_ball = False
+        self.ball_pose = Pose()
+    
+    def model_states_callback(self, msg:ModelStates):
+        if 'vss_ball' in msg.name:
+            index = msg.name.index('vss_ball')
+            self.ball_pose = msg.pose[index]
         
     def update(self):
-        if self.mode == 'direct': self.direct_mode()
+        if self.move_ball: self.move_ball_fun()
+        elif self.mode == 'direct': self.direct_mode()
         elif self.mode == 'diff': self.diff_mode()
         else: 
             rospy.logerr('Invalid mode')
@@ -78,7 +92,7 @@ class JoystickVSSS:
             rospy.loginfo('Team yellow')
             self.current_team = 'yellow'
             self.current_id = 0
-            
+
         if self.joystick.buttons['RB']:
             if self.current_id < 2: self.current_id += 1
             else:  self.current_id = 0
@@ -88,8 +102,17 @@ class JoystickVSSS:
             if self.current_id > 0: self.current_id -= 1
             elif self.current_id == 0: self.current_id = 2
             rospy.loginfo(f'Robot ID: {self.current_id}')
+            
+        if self.joystick.buttons['START']:
+            self.move_ball = not self.move_ball
         
-        
+    def move_ball_fun(self):
+        self.ball_pose.position.y -= self.joystick.axes['LV']*0.01
+        self.ball_pose.position.x += self.joystick.axes['LH']*0.01
+        # self.ball_pose.position.z = 0.03
+        # self.ball_pose.orientation.w = 1.0
+        self.set_model_pose('vss_ball', self.ball_pose)
+    
     def direct_mode(self):
         self.robots[self.current_team][self.current_id][0][0].publish(self.joystick.axes['LV']/self.r)
         self.robots[self.current_team][self.current_id][1][0].publish(self.joystick.axes['RV']/self.r)
@@ -115,6 +138,22 @@ class JoystickVSSS:
             reset_world()
         except rospy.ServiceException as e:
             rospy.logerr(f'Service call failed: {e}')
+            
+    def set_model_pose(self, model_name, pose):
+        rospy.wait_for_service('/gazebo/set_model_state')
+        try:
+            set_state = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
+            state = ModelState()
+            state.model_name = model_name
+            state.pose = pose
+            state.reference_frame = 'world'
+            
+            resp = set_state(state)
+            if not resp.success:
+                rospy.logerr(f"Failed to set pose for model {model_name}")
+        except rospy.ServiceException as e:
+            rospy.logerr(f'Service call failed: {e}')
+            
     
 def main():
     rospy.init_node('joystick')
