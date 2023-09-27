@@ -88,10 +88,12 @@ class JoystickVSSS:
             rospy.loginfo('Team blue')
             self.current_team = 'blue'
             self.current_id = 0
+            self.move_ball = False
         if self.joystick.buttons['Y']:
             rospy.loginfo('Team yellow')
             self.current_team = 'yellow'
             self.current_id = 0
+            self.move_ball = False
 
         if self.joystick.buttons['RB']:
             if self.current_id < 2: self.current_id += 1
@@ -104,7 +106,7 @@ class JoystickVSSS:
             rospy.loginfo(f'Robot ID: {self.current_id}')
             
         if self.joystick.buttons['START']:
-            self.move_ball = not self.move_ball
+            self.move_ball = True
         
     def move_ball_fun(self):
         self.ball_pose.position.y -= self.joystick.axes['LV']*0.01
