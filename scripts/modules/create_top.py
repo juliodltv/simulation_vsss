@@ -13,7 +13,7 @@ top_yellow[75+300+50:800-75,75:800-75,1:] = 255 # Yellow
 
 # green-red, cyan-red, red-green, cyan-green, pink-green, red-cyan, green-cyan, pink-cyan, green-pink, cyan-pink
 
-combinations = [
+combinations_yellow = [
     
     # Consider cyan as default color
     # cyan at right
@@ -39,19 +39,26 @@ combinations = [
     
 ]
 
-for i, combination in enumerate(combinations):
-    print(combination)
-    top_blue[75:75+300,75:75+300,combination[0]] = 255
-    top_blue[75:75+300,75+300+50:800-75,combination[1]] = 255
+combinations_blue = [
+    [colors['cyan'], colors['green']],
+    [colors['pink'], colors['green']],
+    [colors['red'], colors['green']],
+]
+# print(len(combinations_blue))
+
+for i in range(len(combinations_blue)):
+    # print(combination)
+    top_blue[75:75+300,75:75+300,combinations_blue[i][0]] = 255
+    top_blue[75:75+300,75+300+50:800-75,combinations_blue[i][1]] = 255
     
-    top_yellow[75:75+300,75:75+300,combination[0]] = 255
-    top_yellow[75:75+300,75+300+50:800-75,combination[1]] = 255
+    top_yellow[75:75+300,75:75+300,combinations_yellow[i][0]] = 255
+    top_yellow[75:75+300,75+300+50:800-75,combinations_yellow[i][1]] = 255
     
     cv2.imwrite(rospkg.RosPack().get_path('simulation_vsss')+f'/media/materials/textures/blue_{i}.png', top_blue)
     cv2.imwrite(rospkg.RosPack().get_path('simulation_vsss')+f'/media/materials/textures/yellow_{i}.png', top_yellow)
     
-    top_blue[75:75+300,75:75+300,combination[0]] = 0
-    top_blue[75:75+300,75+300+50:800-75,combination[1]] = 0
+    top_blue[75:75+300,75:75+300,combinations_blue[i][0]] = 0
+    top_blue[75:75+300,75+300+50:800-75,combinations_blue[i][1]] = 0
     
-    top_yellow[75:75+300,75:75+300,combination[0]] = 0
-    top_yellow[75:75+300,75+300+50:800-75,combination[1]] = 0
+    top_yellow[75:75+300,75:75+300,combinations_yellow[i][0]] = 0
+    top_yellow[75:75+300,75+300+50:800-75,combinations_yellow[i][1]] = 0
