@@ -112,7 +112,7 @@ class JoystickVSSS:
             
         if self.joystick.axes["PADV"] == -1:
             self.light -= 0.1
-            self.light = max(self.light, 0)
+            self.light = max(self.light, 0.1)
             self.change_light(0)
             self.change_light(1)
         elif self.joystick.axes["PADV"] == 1:
