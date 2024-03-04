@@ -2,14 +2,13 @@
 import rospy, rospkg, sys, numpy as np
 sys.dont_write_bytecode = True
 
-from std_msgs.msg import Float64, ColorRGBA
+from std_msgs.msg import Float64
 from sensor_msgs.msg import Joy
 
 from std_srvs.srv import Empty as EmptySrv
-from gazebo_msgs.srv import SetLightProperties
 from gazebo_msgs.msg import ModelState
 from gazebo_msgs.srv import SetModelState
-from geometry_msgs.msg import Pose, Vector3, Point, Quaternion
+from geometry_msgs.msg import Pose
 from gazebo_msgs.msg import ModelStates
 
 class Joystick:
@@ -45,7 +44,6 @@ class JoystickVSSS:
     def __init__(self, model, topic, mode, r, b):
         self.joystick = Joystick(model=model, topic=topic)
         self.joystick.register_observer(self)
-        self.light = 0
         
         self.mode = mode
         self.r, self.b = r, b
@@ -109,65 +107,6 @@ class JoystickVSSS:
             
         if self.joystick.buttons['START']:
             self.move_ball = True
-            
-        if self.joystick.axes["PADV"] == -1:
-            self.light -= 0.1
-            self.light = max(self.light, 0)
-            self.change_light(0)
-            self.change_light(1)
-        elif self.joystick.axes["PADV"] == 1:
-            self.light += 0.1
-            self.light = min(self.light, 1)
-            self.change_light(0)
-            self.change_light(1)
-    
-    def change_light(self, num):
-        
-        if num == 0:
-            name = "spot_light_0"
-            position = Point(x=-1.0, y=0.0, z=1.0)
-            orientation = Quaternion(x=0.0, y=-0.3335, z=0.0, w=0.9428)
-        else:
-            name = "spot_light_1"
-            position = Point(x=1.0, y=0.0, z=1.0)
-            orientation = Quaternion(x=0.0, y=0.3335, z=0.0, w=0.9428)
-        
-        rospy.wait_for_service("/gazebo/set_light_properties")
-            
-        diffuse = ColorRGBA(r=self.light, g=self.light, b=self.light, a=255/255)
-        specular = ColorRGBA(r=24/255, g=24/255, b=24/255, a=255/255)
-        
-        direction = Vector3(x=0.0, y=0.0, z=-1.0)
-        pose = Pose(position=position, orientation=orientation)         
-        
-        msg = SetLightProperties()
-        msg.light_name = name
-        msg.cast_shadows = False
-        msg.diffuse = diffuse
-        msg.specular = specular
-        msg.attenuation_constant = 0.5
-        msg.attenuation_linear = 0.01
-        msg.attenuation_quadratic = 0.001
-        msg.direction = direction
-        msg.pose = pose
-        try:
-            set_light = rospy.ServiceProxy("/gazebo/set_light_properties", SetLightProperties)
-            resp = set_light(
-                light_name=msg.light_name, 
-                cast_shadows=msg.cast_shadows,
-                diffuse=msg.diffuse,
-                specular=msg.specular,
-                attenuation_constant=msg.attenuation_constant,
-                attenuation_linear=msg.attenuation_linear,
-                attenuation_quadratic=msg.attenuation_quadratic,
-                direction=msg.direction,
-                pose=msg.pose
-            )
-            if not resp.success:
-                rospy.logerr(f"Failed to set light properties: {resp.status_message}")
-        except rospy.ServiceException as e:
-            rospy.logerr(f"Service call failed: {e}")
-        
         
     def move_ball_fun(self):
         self.ball_pose.position.y -= self.joystick.axes['LV']*0.01
