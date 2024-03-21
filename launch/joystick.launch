@@ -9,7 +9,8 @@ https://github.com/ros/urdf_sim_tutorial -->
   <arg name="joystick_topic" default="/joy"/>
   <arg name="joystick_mode" default="diff"/>
   <arg name="joystick_r" default="0.025"/>
-  <arg name="joystick_b" default="0.5"/>
+  <!-- <arg name="joystick_b" default="0.5"/> -->
+  <arg name="joystick_b" default="0.075"/>
 
   <node name="joystick" pkg="simulation_vsss" type="joystick.py" output="screen">
       <param name="model" value="$(arg joystick_model)"/>

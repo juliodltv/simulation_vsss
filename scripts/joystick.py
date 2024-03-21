@@ -45,10 +45,14 @@ class JoystickVSSS:
     def __init__(self, model, topic, mode, r, b):
         self.joystick = Joystick(model=model, topic=topic)
         self.joystick.register_observer(self)
-        self.light = 0
+        self.light = 0.298 # Default light value
         
         self.mode = mode
         self.r, self.b = r, b
+        self.next_robot_button = 0
+        self.prev_robot_button = 0
+        self.light_up_button = 0
+        self.light_down_button = 0
         
         rospy.loginfo(f'Mode: {mode}')
         
@@ -98,11 +102,13 @@ class JoystickVSSS:
             self.move_ball = False
 
         if self.joystick.buttons['RB']:
+            if self.next_robot_button: return
             if self.current_id < 2: self.current_id += 1
             else:  self.current_id = 0
             rospy.loginfo(f'Robot ID: {self.current_id}')
         
         if self.joystick.buttons['LB']:
+            if self.prev_robot_button: return
             if self.current_id > 0: self.current_id -= 1
             elif self.current_id == 0: self.current_id = 2
             rospy.loginfo(f'Robot ID: {self.current_id}')
@@ -111,15 +117,21 @@ class JoystickVSSS:
             self.move_ball = True
             
         if self.joystick.axes["PADV"] == -1:
+            if self.light_down_button: return
             self.light -= 0.1
             self.light = max(self.light, 0.1)
             self.change_light(0)
             self.change_light(1)
         elif self.joystick.axes["PADV"] == 1:
+            if self.light_up_button: return
             self.light += 0.1
             self.light = min(self.light, 1)
             self.change_light(0)
             self.change_light(1)
+        
+        # While the buttons are pressed do not update the values
+        self.next_robot_button, self.prev_robot_button = self.joystick.buttons['RB'], self.joystick.buttons['LB']
+        self.light_up_button, self.light_down_button = self.joystick.axes["PADV"] == 1, self.joystick.axes["PADV"] == -1
     
     def change_light(self, num):
         
@@ -180,16 +192,29 @@ class JoystickVSSS:
         self.robots[self.current_team][self.current_id][0][0].publish(self.joystick.axes['LV']/self.r)
         self.robots[self.current_team][self.current_id][1][0].publish(self.joystick.axes['RV']/self.r)
         
+    # def diff_mode(self):
+    #     V = self.joystick.axes['LV']
+    #     W = self.joystick.axes['RH']
+        
+    #     if abs(V)+abs(W) > 1: 
+    #         V = V/(abs(V)+abs(W))
+    #         W = W/(abs(V)+abs(W))
+        
+    #     wl = (V-W*self.b/2)/self.r
+    #     wr = (V+W*self.b/2)/self.r
+        
+    #     print(wl, wr)
+        
+    #     self.robots[self.current_team][self.current_id][0][0].publish(wl)
+    #     self.robots[self.current_team][self.current_id][1][0].publish(wr)
+        
     def diff_mode(self):
-        V = self.joystick.axes['LV']
-        W = self.joystick.axes['RH']
+        V = self.joystick.axes['LV']*0.75
+        W = self.joystick.axes['RH']*20.0
         
-        if abs(V)+abs(W) > 1: 
-            V = V/(abs(V)+abs(W))
-            W = W/(abs(V)+abs(W))
-        
-        wl = (V-W*self.b/2)/self.r
-        wr = (V+W*self.b/2)/self.r
+        vel = 30
+        wl = (2*V-self.b*W)/(60*self.r)*vel
+        wr = (2*V+self.b*W)/(60*self.r)*vel
         
         self.robots[self.current_team][self.current_id][0][0].publish(wl)
         self.robots[self.current_team][self.current_id][1][0].publish(wr)
