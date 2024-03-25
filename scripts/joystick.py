@@ -216,6 +216,8 @@ class JoystickVSSS:
         wl = (2*V-self.b*W)/(60*self.r)*vel
         wr = (2*V+self.b*W)/(60*self.r)*vel
         
+        print(wl, wr)
+        
         self.robots[self.current_team][self.current_id][0][0].publish(wl)
         self.robots[self.current_team][self.current_id][1][0].publish(wr)
         
