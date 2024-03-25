@@ -49,6 +49,8 @@ class JoystickVSSS:
         
         self.mode = mode
         self.r, self.b = r, b
+        self.vel = 30
+        
         self.next_robot_button = 0
         self.prev_robot_button = 0
         self.light_up_button = 0
@@ -184,40 +186,21 @@ class JoystickVSSS:
     def move_ball_fun(self):
         self.ball_pose.position.y -= self.joystick.axes['LV']*0.01
         self.ball_pose.position.x += self.joystick.axes['LH']*0.01
-        # self.ball_pose.position.z = 0.03
-        # self.ball_pose.orientation.w = 1.0
         self.set_model_pose('vss_ball', self.ball_pose)
     
     def direct_mode(self):
-        self.robots[self.current_team][self.current_id][0][0].publish(self.joystick.axes['LV']/self.r)
-        self.robots[self.current_team][self.current_id][1][0].publish(self.joystick.axes['RV']/self.r)
-        
-    # def diff_mode(self):
-    #     V = self.joystick.axes['LV']
-    #     W = self.joystick.axes['RH']
-        
-    #     if abs(V)+abs(W) > 1: 
-    #         V = V/(abs(V)+abs(W))
-    #         W = W/(abs(V)+abs(W))
-        
-    #     wl = (V-W*self.b/2)/self.r
-    #     wr = (V+W*self.b/2)/self.r
-        
-    #     print(wl, wr)
-        
-    #     self.robots[self.current_team][self.current_id][0][0].publish(wl)
-    #     self.robots[self.current_team][self.current_id][1][0].publish(wr)
+        self.robots[self.current_team][self.current_id][0][0].publish(self.joystick.axes['LV']*self.vel)
+        self.robots[self.current_team][self.current_id][1][0].publish(self.joystick.axes['RV']*self.vel)
         
     def diff_mode(self):
         V = self.joystick.axes['LV']*0.75
         W = self.joystick.axes['RH']*20.0
         
-        vel = 30
-        wl = (2*V-self.b*W)/(60*self.r)*vel
-        wr = (2*V+self.b*W)/(60*self.r)*vel
+        wl = (2*V-self.b*W)/(60*self.r)*self.vel
+        wr = (2*V+self.b*W)/(60*self.r)*self.vel
         
-        print(wl, wr)
-        
+        wl, wr = np.clip([wl, wr], -self.vel, self.vel)
+
         self.robots[self.current_team][self.current_id][0][0].publish(wl)
         self.robots[self.current_team][self.current_id][1][0].publish(wr)
         
