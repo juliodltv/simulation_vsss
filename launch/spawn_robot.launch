@@ -1,7 +1,7 @@
 <launch>
   <arg name="robot_number" default="0"/>
   <arg name="is_yellow" default="true"/>
-  <arg name="robot_name" default="yelow/0"/>
+  <arg name="robot_name" default="yellow/0"/>
   <arg name="x" default="0"/>
   <arg name="y" default="0"/>
   <arg name="z" default="0.03"/>
