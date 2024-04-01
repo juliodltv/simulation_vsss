@@ -75,8 +75,15 @@
       </spot>
     </light>
 
+    <scene>
+      <shadows>0</shadows>
+      <grid>false</grid>
+      <origin_visual>false</origin_visual>
+    </scene>
+
     <physics type='ode'>
       <real_time_factor>0.5</real_time_factor>
+      <!-- <real_time_factor>3.0</real_time_factor> -->
     </physics>
 
     <!-- Configure camera angles for isometric view -->
