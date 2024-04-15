@@ -196,6 +196,9 @@ class JoystickVSSS:
         V = self.joystick.axes['LV']*0.75
         W = self.joystick.axes['RH']*20.0
         
+        # V = (self.joystick.axes['RT']-1)/-2*0.75+(self.joystick.axes['LT']-1)/-2*-0.75
+        # W = self.joystick.axes['LH']*10.0
+        
         wl = (2*V-self.b*W)/(60*self.r)*self.vel
         wr = (2*V+self.b*W)/(60*self.r)*self.vel
         
