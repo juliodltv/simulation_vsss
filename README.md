@@ -1,78 +1,260 @@
-# simulation_vsss
+# VSSS Robot Soccer Simulation
 
-This repository contains the code to simulate the LARC VSSS Competition using ROS and Gazebo. The code was tested on Ubuntu 20.04 and ROS Noetic.
+A complete simulation environment for the Very Small Size Soccer (VSSS) competition using ROS Noetic and Gazebo. This simulator provides a realistic 3D environment with robot physics, ball dynamics, and field visualization for developing and testing robot soccer strategies.
 
-## Dependencies
-Robot Operating System (ROS) on the Noetic version is used to run the code. ROS serves as the framework for the simulation and the [code](https://github.com/Xpsp/larac_vsss) used to control the robots. The installation instructions for ROS Noetic can be found [here](http://wiki.ros.org/noetic/Installation/Ubuntu).
+**Note**: This is a simulation environment only - no control strategies or autonomous behaviors are implemented. You can control robots manually via joystick or develop your own control algorithms.
 
-The robots use the [velocity_controllers](http://wiki.ros.org/velocity_controllers) package to control the robot's movement. The package can be installed using the following command:
+## Overview
 
-    sudo apt-get install ros-noetic-velocity-controllers
+This simulation environment includes:
+- **3D Soccer Field**: Complete VSSS field with accurate dimensions and markings
+- **Robot Models**: Differential drive robots with realistic physics
+- **Ball Physics**: Realistic ball movement and collision dynamics
+- **Camera System**: Top-view camera feed for computer vision development
+- **Joystick Control**: Real-time robot control using game controllers
+- **Team Management**: Support for both blue and yellow teams (3 robots each)
 
-<div align="center" style="font-size: 18px; margin-bottom: 20px;">The simulator doesn't need more dependencies</div>
+## Prerequisites
 
-However trying to improve the response of the [code](https://github.com/Xpsp/larac_vsss) on the real robots, we load the camera input directly from /dev/videoX, so to get the camera input from the simulator we use the [image_to_v4l2loopback](https://github.com/lucasw/image_to_v4l2loopback) to convert the image topic to a virtual camera.
+### System Requirements
+- **Operating System**: Ubuntu 20.04 LTS
+- **ROS Version**: ROS Noetic
+- **Hardware**: Joystick/Gamepad (optional, for manual control)
 
-The flowchart is shown below:
-- Run simulator
-- Create a virtual camera
-- Stream the image topic to the virtual camera
-- Run the [code](https://github.com/Xpsp/larac_vsss)
+### ROS Dependencies
 
-## Instalation
-In order create the virtual camera, we use the [v4l2loopback](https://github.com/umlaeute/v4l2loopback) kernel module. To install it, follow the instructions below:
+Install ROS Noetic Desktop Full following the [official installation guide](http://wiki.ros.org/noetic/Installation/Ubuntu).
 
-```bash
-git clone https://github.com/umlaeute/v4l2loopback
-cd v4l2loopback
-make
-```
-
-To install image_to_v4l2loopback, follow the instructions below:
+Install the required velocity controllers package:
 
 ```bash
-cd <path_to_catkin_ws>/src
-git clone https://github.com/lucasw/image_to_v4l2loopback
-cd ..
-catkin_make
+sudo apt-get update
+sudo apt-get install ros-noetic-velocity-controllers
 ```
 
-The following is to create a virtual camera:
+## Installation
 
-    sudo modprobe v4l2loopback exclusive_caps=1 video_nr=2 card_label="Fake"
+1. **Navigate to your catkin workspace source directory:**
+   ```bash
+   cd ~/catkin_ws/src
+   ```
 
-If you don't get any error, the virtual camera was created successfully. To check if the camera was created, run the following command:
+2. **Clone this repository:**
+   ```bash
+   git clone https://github.com/juliodltv/simulation_vsss.git
+   ```
 
-    v4l2-ctl --list-devices
+3. **Build the workspace:**
+   ```bash
+   cd ~/catkin_ws
+   catkin_make
+   ```
 
-You should see a "Fake" camera in the list. If you get an error, it's so likely that you need to disable the secure boot. To do that, follow the instructions below:
-    
-    sudo apt install mokutil
-    sudo mokutil --disable-validation
+4. **Source the workspace:**
+   ```bash
+   source devel/setup.bash
+   ```
+   
+   Add this line to your `~/.bashrc` for automatic sourcing:
+   ```bash
+   echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
+   ```
 
-When you run the command above, you will be asked to create a temporaly password. After that you need to reboot the computer, when the computer is booting, you will see a blue screen asking you to disable the secure boot, sometimes only an specific character of your password is required, not the whole password.
+## Running the Simulation
 
-***READ THE INSTRUCTIONS ABOVE BEFORE REBOOTING THE COMPUTER***
+### Basic Simulation
+Start the complete simulation environment:
 
-    sudo reboot
+```bash
+roslaunch simulation_vsss simulation_match.launch
+```
 
-After rebooting the computer, try again to create the virtual camera.
+This launches:
+- Gazebo world with the VSSS field
+- 6 robots (3 blue, 3 yellow)
+- Ball physics
+- Camera system
+- ROS control infrastructure
 
-## Running the simulation
-Follow the previous flowchart the commands are shown below:
+### Alternative Launch Files
 
-- Run simulator
-  
-        roslaunch simulation_vsss simulation_match.launch
-  
-- Create a virtual camera
-  
-        sudo modprobe v4l2loopback exclusive_caps=1 video_nr=2 card_label="Fake"
+- **Single robot testing:**
+  ```bash
+  roslaunch simulation_vsss simulation_robot.launch
+  ```
 
-- Stream the image topic to the virtual camera
+- **1 vs 1 match:**
+  ```bash
+  roslaunch simulation_vsss simulation_vs.launch
+  ```
 
-        rosrun image_to_v4l2loopback stream _device:=/dev/video2 _width:=800 _height:=600 _fourcc:=YUYV image:=/camera/image_raw
+- **Single team (3 robots):**
+  ```bash
+  roslaunch simulation_vsss simulation_team.launch
+  ```
 
-The virtual camera is destroyed when your turn off the computer, alternatively you can run the following command to destroy the virtual camera:
+- **Two robots on yellow team:**
+  ```bash
+  roslaunch simulation_vsss simulation_offense.launch
+  ```
 
-    sudo rmmod v4l2loopback
+## Joystick Control
+
+### Supported Controllers
+- USB Generic Gamepad
+- Xbox 360 Controller
+- Xbox One Controller (default)
+- Xbox Chinese Controller
+
+### Starting Joystick Control
+
+```bash
+roslaunch simulation_vsss joystick.launch
+```
+
+### Control Mapping
+
+| Control | Action |
+|---------|--------|
+| **Left Stick** | Linear velocity (forward/backward) |
+| **Right Stick** | Angular velocity (rotation) |
+| **X Button** | Select Blue Team |
+| **Y Button** | Select Yellow Team |
+| **RB (Right Bumper)** | Next Robot (0→1→2→0) |
+| **LB (Left Bumper)** | Previous Robot (2→1→0→2) |
+| **START Button** | Ball Control Mode |
+| **BACK Button** | Reset World |
+| **D-Pad Up/Down** | Increase/Decrease Lighting |
+
+The joystick operates in differential drive mode, using linear and angular velocities to control robot movement.
+
+## Useful ROS Commands
+
+### Visualization Tools
+
+**View camera feed:**
+```bash
+rqt_image_view
+```
+Select `/camera/image_raw` topic to see the field from above.
+
+**Visualize ROS topics and nodes:**
+```bash
+rqt_graph
+```
+
+**Monitor all topics:**
+```bash
+rostopic list
+```
+
+**Check specific topic data:**
+```bash
+rostopic echo /camera/image_raw
+rostopic echo /blue/0/left_controller/command
+```
+
+### Robot Control via Command Line
+
+**Control blue robot 0:**
+```bash
+# Left wheel
+rostopic pub /blue/0/left_controller/command std_msgs/Float64 "data: 30.0"
+# Right wheel  
+rostopic pub /blue/0/right_controller/command std_msgs/Float64 "data: 30.0"
+```
+
+**Control yellow robot 1:**
+```bash
+# Left wheel
+rostopic pub /yellow/1/left_controller/command std_msgs/Float64 "data: -20.0"
+# Right wheel
+rostopic pub /yellow/1/right_controller/command std_msgs/Float64 "data: 20.0"
+```
+
+### System Information
+
+**Check active nodes:**
+```bash
+rosnode list
+```
+
+**Get node information:**
+```bash
+rosnode info /gazebo
+```
+
+**Service calls:**
+```bash
+rosservice list
+rosservice call /gazebo/reset_world
+```
+
+## Project Structure
+
+```
+simulation_vsss/
+├── launch/           # ROS launch files
+├── urdf/            # Robot URDF models  
+├── models/          # Gazebo models (field, ball, camera)
+├── worlds/          # Gazebo world files
+├── scripts/         # Python control scripts
+├── config/          # Configuration files
+└── media/           # Textures and materials
+```
+
+## Development
+
+### Adding New Robots
+1. Modify URDF files in `/urdf/`
+2. Update launch files in `/launch/`
+3. Adjust team configurations
+
+### Custom Control Algorithms
+1. Create new Python scripts in `/scripts/`
+2. Subscribe to `/camera/image_raw` for vision
+3. Publish to robot command topics
+
+### Field Modifications
+1. Edit models in `/models/vss_field/`
+2. Update world files in `/worlds/`
+
+## Troubleshooting
+
+### Common Issues
+
+**Gazebo doesn't start:**
+- Check if all dependencies are installed
+- Verify ROS environment is sourced
+- Try: `killall gzserver gzclient`
+
+**No joystick response:**
+- Check if joystick is detected: `ls /dev/input/js*`
+- Verify joystick topic: `rostopic echo /joy`
+- Check launch file parameters
+
+**Robots don't move:**
+- Verify controllers are loaded: `rosservice call /controller_manager/list_controllers`
+- Check topic connections: `rostopic info /blue/0/left_controller/command`
+
+**Camera image not visible:**
+- Check if topic exists: `rostopic list | grep camera`
+- Verify image transport: `rosrun image_view image_view image:=/camera/image_raw`
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- Based on [ThundeRatz/travesim](https://github.com/ThundeRatz/travesim)
+- VSSS Competition rules and specifications
+- ROS and Gazebo communities
