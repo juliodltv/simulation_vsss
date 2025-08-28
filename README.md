@@ -30,6 +30,7 @@ Install the required velocity controllers package:
 ```bash
 sudo apt-get update
 sudo apt-get install ros-noetic-velocity-controllers
+sudo apt-get install ros-noetic-image-transport-plugins
 ```
 
 ## Installation
@@ -108,9 +109,7 @@ This launches:
 
 ### Starting Joystick Control
 
-```bash
-roslaunch simulation_vsss joystick.launch
-```
+The joystick will be automatically initialized when plugged in during an active simulation.
 
 ### Control Mapping
 
@@ -120,8 +119,8 @@ roslaunch simulation_vsss joystick.launch
 | **Right Stick** | Angular velocity (rotation) |
 | **X Button** | Select Blue Team |
 | **Y Button** | Select Yellow Team |
-| **RB (Right Bumper)** | Next Robot (0→1→2→0) |
-| **LB (Left Bumper)** | Previous Robot (2→1→0→2) |
+| **RB (Right Button)** | Next Robot (0→1→2→0) |
+| **LB (Left Button)** | Previous Robot (2→1→0→2) |
 | **START Button** | Ball Control Mode |
 | **BACK Button** | Reset World |
 | **D-Pad Up/Down** | Increase/Decrease Lighting |
@@ -136,7 +135,7 @@ The joystick operates in differential drive mode, using linear and angular veloc
 ```bash
 rqt_image_view
 ```
-Select `/camera/image_raw` topic to see the field from above.
+Select `/camera/image_raw/compressed` topic to see the field from above.
 
 **Visualize ROS topics and nodes:**
 ```bash
@@ -194,7 +193,7 @@ rosservice call /gazebo/reset_world
 
 ```
 simulation_vsss/
-├── launch/           # ROS launch files
+├── launch/          # ROS launch files
 ├── urdf/            # Robot URDF models  
 ├── models/          # Gazebo models (field, ball, camera)
 ├── worlds/          # Gazebo world files
@@ -203,43 +202,14 @@ simulation_vsss/
 └── media/           # Textures and materials
 ```
 
-## Development
-
-### Adding New Robots
-1. Modify URDF files in `/urdf/`
-2. Update launch files in `/launch/`
-3. Adjust team configurations
-
-### Custom Control Algorithms
-1. Create new Python scripts in `/scripts/`
-2. Subscribe to `/camera/image_raw` for vision
-3. Publish to robot command topics
-
-### Field Modifications
-1. Edit models in `/models/vss_field/`
-2. Update world files in `/worlds/`
-
 ## Troubleshooting
 
 ### Common Issues
-
-**Gazebo doesn't start:**
-- Check if all dependencies are installed
-- Verify ROS environment is sourced
-- Try: `killall gzserver gzclient`
-
 **No joystick response:**
 - Check if joystick is detected: `ls /dev/input/js*`
+   - To change the input device, modify `rosrun joy joy_node _dev:=/dev/input/jsN` where N is the joystick number.
 - Verify joystick topic: `rostopic echo /joy`
 - Check launch file parameters
-
-**Robots don't move:**
-- Verify controllers are loaded: `rosservice call /controller_manager/list_controllers`
-- Check topic connections: `rostopic info /blue/0/left_controller/command`
-
-**Camera image not visible:**
-- Check if topic exists: `rostopic list | grep camera`
-- Verify image transport: `rosrun image_view image_view image:=/camera/image_raw`
 
 ## Contributing
 
