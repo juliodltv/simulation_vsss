@@ -1,5 +1,24 @@
 # VSSS Robot Soccer Simulation
 
+<div style="display: flex; justify-content: space-between; align-items: center;">
+    <div style="flex: 0.85; text-align: center; padding: 10px;">
+        <img
+            src="docs/gazebo_sim.png"
+            alt="Single robot simulation"
+            style="height: 300px; max-width: 100%; object-fit: contain;"
+        />
+        <p><em>Simulation Environment</em></p>
+    </div>
+    <div style="flex: 1.3; text-align: center; padding: 10px;">
+        <img
+            src="docs/gazebo_sim_cam.png"
+            alt="Full team match simulation"
+            style="height: 300px; max-width: 100%; object-fit: contain;"
+        />
+        <p><em>Camera Simulation View</em></p>
+    </div>
+</div>
+
 A complete simulation environment for the Very Small Size Soccer (VSSS) competition using ROS Noetic and Gazebo. This simulator provides a realistic 3D environment with robot physics, ball dynamics, and field visualization for developing and testing robot soccer strategies.
 
 **Note**: This is a simulation environment only - no control strategies or autonomous behaviors are implemented. You can control robots manually via joystick or develop your own control algorithms.
